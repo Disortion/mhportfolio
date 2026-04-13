@@ -1,0 +1,96 @@
+.fancy-btn-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fancy-btn {
+  position: relative;
+  min-width: 180px;
+  min-height: 48px;
+  border-radius: var(--radius-md);
+  border: none;
+  padding: 0.5em 1.5em;
+  background: linear-gradient(#fff2, #0001), var(--color-primary);
+  box-shadow: var(--shadow-card);
+  font-size: 1rem;
+  transition: transform 0.25s cubic-bezier(0, 0, 0, 2.5), filter 0.25s;
+}
+
+.fancy-btn__text {
+  display: inline-block;
+  font-size: 1.15em;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  background-image: linear-gradient(#444, #000a);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 0 #fff6) drop-shadow(0 -1px 0 #0006);
+}
+
+.fancy-btn-drawer {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  min-height: 28px;
+  border-radius: var(--radius-md);
+  padding: 0.25em 1em;
+  font-size: 0.8em;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: #0009;
+  background: linear-gradient(#fff2, #0001), var(--color-primary);
+  background-color: var(--color-secondary);
+  opacity: 0;
+  filter: blur(2px);
+  transition: all 0.15s ease;
+}
+
+.fancy-btn-drawer--top {
+  top: 0;
+  left: 0;
+  border-radius: 12px 12px 0 0;
+  align-items: start;
+}
+
+.fancy-btn-drawer--bottom {
+  bottom: 0;
+  right: 0;
+  border-radius: 0 0 12px 12px;
+  align-items: end;
+}
+
+.fancy-btn-corner {
+  position: absolute;
+  width: 28px;
+  fill: none;
+  stroke: var(--corner-color);
+  stroke-width: 1;
+  transition: transform 0.25s cubic-bezier(0, 0, 0, 2.5), filter 0.25s;
+}
+
+.fancy-btn-corner--0 {
+  top: 0;
+  left: 0;
+  transform: translate(-24px, -24px) rotate(90deg);
+}
+
+.fancy-btn-corner--1 {
+  top: 0;
+  right: 0;
+  transform: translate(24px, -24px) rotate(180deg);
+}
+
+.fancy-btn-corner--2 {
+  bottom: 0;
+  right: 0;
+  transform: translate(24px, 24px) rotate(-90deg);
+}
+
+.fancy-btn-corner--3 {
+  bottom: 0;
+  left: 0;
+  transform: translate(-24px, 24px) rotate(0deg);
+}
