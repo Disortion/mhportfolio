@@ -1,192 +1,157 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
-import { FaEnvelope, FaGithub, FaLinkedin, FaTwitter, FaPaperPlane, FaHeart, FaArrowUp } from 'react-icons/fa';
-import SectionTitle from '../components/SectionTitle';
-import FancyButton from '../components/FancyButton';
-import './Contact.css';
+import React, { useState, useRef } from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { FaGithub, FaInstagram, FaDiscord, FaArrowRight, FaCopy, FaCheck } from 'react-icons/fa';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const SOCIALS = [
-  { icon: FaGithub, label: 'GitHub', href: 'https://github.com/disortion', color: '#e8e8f0' },
-  { icon: FaLinkedin, label: 'LinkedIn', href: '#', color: '#0077b5' },
-  { icon: FaTwitter, label: 'Twitter', href: '#', color: '#1da1f2' },
-  { icon: FaEnvelope, label: 'Email', href: 'mailto:hello@mohawash.com', color: '#ff7cd8' },
+  { name: 'Github', icon: FaGithub, link: 'https://github.com/disortion' },
+  { name: 'Instagram', icon: FaInstagram, link: 'https://instagram.com/vi.roar3h' },
 ];
 
 export default function Contact() {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
-  const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
+  const [copied, setCopied] = useState(false);
+  const sectionRef = useRef(null);
+  const DISCORD_USERNAME = 'disortion.';
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
-    setFormData({ name: '', email: '', message: '' });
-  };
+  useGSAP(() => {
+    gsap.fromTo(".contact-reveal",
+      { y: 40, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 1.2,
+        stagger: 0.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+        }
+      }
+    );
+  }, { scope: sectionRef });
 
-  const scrollToTop = () => {
-    document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+  const handleCopy = () => {
+    navigator.clipboard.writeText(DISCORD_USERNAME);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <section id="contact" className="contact section-padding">
-      {/* Decorative */}
-      <div className="contact__blob contact__blob--1" />
-      <div className="contact__blob contact__blob--2" />
+    <section
+      id="contact"
+      ref={sectionRef}
+      className="py-32 md:py-60 bg-black text-ivory relative overflow-hidden"
+    >
+      <div className="container mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-center">
 
-      {/* Wavy divider at top */}
-      <div className="contact__wave-top">
-        <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
-          <path
-            d="M0,40 C360,0 720,80 1080,30 C1260,10 1380,50 1440,40 L1440,0 L0,0 Z"
-            fill="var(--color-bg)"
-          />
-        </svg>
-      </div>
-
-      <div className="container" ref={ref}>
-        <SectionTitle
-          title="Get In Touch"
-          subtitle="Have a project in mind? Let's chat!"
-        />
-
-        <div className="contact__grid">
-          {/* Form */}
-          <motion.form
-            className="contact__form"
-            onSubmit={handleSubmit}
-            initial={{ opacity: 0, x: -40 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ type: 'spring', stiffness: 80, damping: 20 }}
-          >
-            <div className="contact__field">
-              <label htmlFor="contact-name" className="contact__label">Name</label>
-              <input
-                id="contact-name"
-                type="text"
-                className="contact__input"
-                placeholder="Your awesome name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="contact__field">
-              <label htmlFor="contact-email" className="contact__label">Email</label>
-              <input
-                id="contact-email"
-                type="email"
-                className="contact__input"
-                placeholder="you@example.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="contact__field">
-              <label htmlFor="contact-message" className="contact__label">Message</label>
-              <textarea
-                id="contact-message"
-                className="contact__input contact__textarea"
-                placeholder="Tell me about your idea..."
-                rows={5}
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="contact__submit">
-              {submitted ? (
-                <motion.div
-                  className="contact__success"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ type: 'spring' }}
-                >
-                  <FaPaperPlane /> Message sent! I'll get back to you soon.
-                </motion.div>
-              ) : (
-                <FancyButton
-                  text="Send Message"
-                  drawerTop="ready?"
-                  drawerBottom="...let's go!"
-                  type="submit"
-                />
-              )}
-            </div>
-          </motion.form>
-
-          {/* Social side */}
-          <motion.div
-            className="contact__social-side"
-            initial={{ opacity: 0, x: 40 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ type: 'spring', stiffness: 80, damping: 20, delay: 0.2 }}
-          >
-            <div className="contact__social-card">
-              <motion.div
-                className="contact__envelope"
-                animate={{ rotate: [0, -5, 5, -3, 0] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              >
-                <FaEnvelope className="contact__envelope-icon" />
-              </motion.div>
-
-              <h3 className="contact__social-title">Let's connect!</h3>
-              <p className="contact__social-text">
-                I'm always open to discussing new projects,
-                creative ideas, or opportunities to be part of something amazing.
+          {/* Header Side */}
+          <div className="lg:col-span-12 xl:col-span-6 space-y-16">
+            <div className="space-y-8">
+              <h2 className="contact-reveal text-xs font-mono uppercase tracking-[0.6em] text-neutral-500">
+                04. Connection // Dialogue
+              </h2>
+              <h3 className="contact-reveal text-5xl md:text-8xl font-display font-medium tracking-tighter leading-none italic">
+                Let’s build <br />
+                <span className="text-white not-italic">something</span> solid.
+              </h3>
+              <p className="contact-reveal text-neutral-400 text-lg md:text-xl font-body font-light leading-relaxed max-w-md">
+                Want to work together? The best way to reach me is on Discord.
               </p>
+            </div>
 
-              <div className="contact__social-links">
-                {SOCIALS.map((social, i) => (
-                  <motion.a
-                    key={i}
-                    href={social.href}
+            <div className="contact-reveal space-y-8">
+              <span className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest">Socials</span>
+              <div className="flex gap-10">
+                {SOCIALS.map((social) => (
+                  <a
+                    key={social.name}
+                    href={social.link}
                     target="_blank"
-                    rel="noopener noreferrer"
-                    className="contact__social-link"
-                    whileHover={{ scale: 1.1, y: -4 }}
-                    whileTap={{ scale: 0.95 }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={inView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ delay: i * 0.1 + 0.5 }}
-                    style={{ '--social-color': social.color }}
+                    rel="noreferrer"
+                    className="group flex flex-col items-center gap-4 text-neutral-500 hover:text-white transition-all duration-500"
+                    data-cursor="GOTO"
                   >
-                    <social.icon className="contact__social-icon" />
-                    <span>{social.label}</span>
-                  </motion.a>
+                    <social.icon size={24} className="group-hover:-translate-y-1 transition-transform duration-500" />
+                    <span className="text-[8px] font-mono uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">
+                      {social.name}
+                    </span>
+                  </a>
                 ))}
               </div>
             </div>
-          </motion.div>
-        </div>
+          </div>
 
-        {/* Footer */}
-        <motion.footer
-          className="contact__footer"
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ delay: 1 }}
-        >
-          <p>
-            Built with <FaHeart className="contact__footer-heart" /> by Mohammad Hawash
-          </p>
-          <p className="contact__footer-year">© {new Date().getFullYear()}</p>
-          <motion.button
-            className="contact__back-to-top"
-            onClick={scrollToTop}
-            whileHover={{ scale: 1.1, y: -4 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <FaArrowUp /> Back to Top
-          </motion.button>
-        </motion.footer>
+          {/* Discord Copy Side */}
+          <div className="lg:col-span-12 xl:col-span-6">
+            <div className="contact-reveal bg-zinc-950 border border-white/5 p-8 md:p-16 flex flex-col items-center justify-center gap-8 text-center relative group overflow-hidden">
+              {/* Background Decorative */}
+              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <FaDiscord size={120} />
+              </div>
+
+              <div className="space-y-4 relative z-10">
+                <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest">Direct Contact</span>
+                <div className="flex flex-col gap-2">
+                  <span className="text-3xl md:text-5xl font-display text-white tracking-tighter">
+                    {DISCORD_USERNAME}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={handleCopy}
+                className={`relative z-10 flex items-center gap-4 px-12 py-6 font-display font-bold text-xs uppercase tracking-[0.4em] transition-all duration-500 ${copied ? 'bg-white text-black' : 'bg-transparent border border-white/10 text-white hover:border-white hover:bg-white hover:text-black'
+                  }`}
+                data-cursor={copied ? "COPIED" : "COPY"}
+              >
+                {copied ? (
+                  <>
+                    <FaCheck />
+                    <span>Copied Username</span>
+                  </>
+                ) : (
+                  <>
+                    <FaCopy />
+                    <span>Copy Discord</span>
+                  </>
+                )}
+              </button>
+
+              <div className="absolute bottom-0 left-0 h-[1px] bg-white transition-all duration-700 w-0 group-hover:w-full" />
+            </div>
+          </div>
+
+        </div>
       </div>
+
+      {/* Global Branding Footer */}
+      <footer className="mt-60 py-20 border-t border-white/5">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-12 text-center md:text-left">
+          <div className="space-y-2">
+            <h4 className="text-xl font-display font-bold tracking-tighter uppercase italic">Disortion</h4>
+            <p className="text-[10px] font-mono text-neutral-600 uppercase tracking-[0.4em]">© 2026 // Stuff // Projects</p>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="w-10 h-[1px] bg-white/10" />
+            <span className="text-[8px] font-mono text-neutral-700 uppercase tracking-[0.5em]">Built with Love</span>
+            <div className="w-10 h-[1px] bg-white/10" />
+          </div>
+
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="text-[10px] font-mono text-neutral-500 hover:text-white transition-colors uppercase tracking-widest flex items-center gap-2 group"
+          >
+            Back to top <FaArrowRight className="-rotate-90 group-hover:-translate-y-1 transition-transform" />
+          </button>
+        </div>
+      </footer>
+
+      <div className="noise-bg" />
     </section>
   );
 }

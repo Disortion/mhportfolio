@@ -1,165 +1,122 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
-import { FaCoffee, FaCode, FaMapMarkerAlt, FaGraduationCap, FaHeart, FaLaptopCode, FaJsSquare, FaGamepad } from 'react-icons/fa';
-import SectionTitle from '../components/SectionTitle';
-import './About.css';
+import React, { useRef } from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { FaArrowRight } from 'react-icons/fa';
 
-const FUN_FACTS = [
-  {
-    icon: FaCoffee,
-    color: '#ffb87c',
-    title: 'Coffee Addict',
-    value: '∞',
-    subtitle: 'cups consumed',
-  },
-  {
-    icon: FaCode,
-    color: '#d8ff7c',
-    title: 'Lines of Code',
-    value: '10K+',
-    subtitle: 'and counting',
-  },
-  {
-    icon: FaLaptopCode,
-    color: '#7cc8ff',
-    title: 'Projects',
-    value: '4+',
-    subtitle: 'shipped & live',
-  },
-  {
-    icon: FaHeart,
-    color: '#ff7cd8',
-    title: 'Passion Level',
-    value: '100%',
-    subtitle: 'always',
-  },
-];
-
-const INTERESTS = [
-  { icon: FaCoffee, label: 'Coffee', color: '#ffb87c' },
-  { icon: FaLaptopCode, label: 'Coding', color: '#7cc8ff' },
-  { icon: FaGamepad, label: 'Gaming', color: '#ff7cd8' },
-  { icon: FaJsSquare, label: 'Open Source', color: '#f7df1e' },
-];
+gsap.registerPlugin(ScrollTrigger);
 
 export default function About() {
-  const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
+  const sectionRef = useRef(null);
+  const textRef = useRef(null);
+  const imageRef = useRef(null);
+
+  useGSAP(() => {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: "top 80%",
+        end: "bottom 20%",
+        toggleActions: "play none none reverse",
+      }
+    });
+
+    tl.fromTo(".about-reveal",
+      { y: 50, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: "power3.out" }
+    );
+
+    gsap.fromTo(imageRef.current,
+      { clipPath: "inset(100% 0 0 0)" },
+      {
+        clipPath: "inset(0% 0 0 0)",
+        duration: 1.5,
+        ease: "power4.inOut",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 60%",
+        }
+      }
+    );
+  }, { scope: sectionRef });
 
   return (
-    <section id="about" className="about section-padding">
-      {/* Decorative blobs */}
-      <div className="about__blob about__blob--1" />
-      <div className="about__blob about__blob--2" />
+    <section
+      id="about"
+      ref={sectionRef}
+      className="py-32 md:py-60 bg-black text-ivory relative overflow-hidden"
+    >
+      <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center">
 
-      <div className="container">
-        <SectionTitle
-          title="About Me"
-          subtitle="Get to know the person behind the code"
-        />
+        {/* Left Side: Text */}
+        <div className="lg:col-span-7 space-y-12 order-2 lg:order-1">
+          <div className="space-y-6">
+            <h2 className="about-reveal text-xs font-mono uppercase tracking-[0.6em] text-neutral-500">
+              01. Identity // Profile
+            </h2>
+            <h3 className="about-reveal text-5xl md:text-8xl font-display font-medium tracking-tighter leading-none italic">
+              Code is the <br />
+              <span className="text-white not-italic">blueprint</span> for everything.
+            </h3>
+          </div>
 
-        <div className="about__grid" ref={ref}>
-          {/* Text side */}
-          <motion.div
-            className="about__text"
-            initial={{ opacity: 0, x: -40 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ type: 'spring', stiffness: 80, damping: 20 }}
-          >
-            <div className="about__intro-card">
-              <div className="about__intro-header">
-                <FaMapMarkerAlt className="about__intro-icon" style={{ color: '#ff7cd8' }} />
-                <span>Amman, Jordan</span>
-              </div>
-              <p className="about__bio">
-                Hey there! I'm <strong>Mohammad Hawash</strong>, a 17-year-old high schooler
-                with a serious passion for computers and an even more serious coffee habit.
-              </p>
-              <p className="about__bio">
-                I dream of studying <strong>Computer Engineering</strong> at
-                <strong> Princess Sumaya University for Technology (PSUT)</strong>,
-                where I can dive deeper into the world of hardware and software.
-              </p>
-              <p className="about__bio">
-                When I'm not coding, you'll find me exploring new tech, gaming, or
-                brewing my next cup of coffee. I believe every line of code is a
-                chance to make something awesome.
-              </p>
+          <div ref={textRef} className="about-reveal space-y-8 text-neutral-400 text-lg md:text-2xl font-body font-light leading-relaxed max-w-2xl">
+            <p>
+              I’m <span className="text-white font-medium">Disortion</span>. I build stuff that works.
+            </p>
+            <p>
+              I focus on the intersection of structure and speed. I create digital tools that are fast, clean, and intentional.
+            </p>
+            <p>
+              No fluff. Just solid code and functional design.
+            </p>
+          </div>
 
-              <div className="about__tags">
-                <span className="about__tag">
-                  <FaGraduationCap /> High School Student
-                </span>
-                <span className="about__tag">
-                  <FaMapMarkerAlt /> Jordan
-                </span>
-                <span className="about__tag">
-                  <FaCoffee /> Coffee Lover
-                </span>
-              </div>
-
-              {/* Interests */}
-              <div className="about__interests">
-                <h4 className="about__interests-title">What I Love</h4>
-                <div className="about__interests-grid">
-                  {INTERESTS.map((interest, i) => (
-                    <motion.div
-                      key={i}
-                      className="about__interest"
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={inView ? { opacity: 1, scale: 1 } : {}}
-                      transition={{ delay: i * 0.1 + 0.6, type: 'spring', stiffness: 200 }}
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                    >
-                      <interest.icon style={{ color: interest.color, fontSize: '1.2rem' }} />
-                      <span>{interest.label}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
+          <div className="about-reveal flex flex-wrap gap-8 pt-6">
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest">Focus</span>
+              <span className="text-sm font-display uppercase tracking-widest flex items-center gap-2 text-white">
+                Building Stuff
+              </span>
             </div>
-          </motion.div>
-
-          {/* Fun facts side */}
-          <div className="about__facts">
-            {FUN_FACTS.map((fact, i) => (
-              <motion.div
-                key={i}
-                className="about__fact-card"
-                initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
-                transition={{
-                  delay: i * 0.1 + 0.2,
-                  type: 'spring',
-                  stiffness: 120,
-                  damping: 15,
-                }}
-                whileHover={{
-                  scale: 1.05,
-                  rotate: i % 2 === 0 ? 2 : -2,
-                  transition: { type: 'spring', stiffness: 400 },
-                }}
-              >
-                <fact.icon
-                  className="about__fact-icon"
-                  style={{ color: fact.color }}
-                />
-                <div className="about__fact-value">{fact.value}</div>
-                <div className="about__fact-title">{fact.title}</div>
-                <div className="about__fact-subtitle">{fact.subtitle}</div>
-              </motion.div>
-            ))}
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest">Base</span>
+              <span className="text-sm font-display uppercase tracking-widest flex items-center gap-2 text-white">
+                Digital Sandbox
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Wavy divider to next section */}
-      <div className="about__wave">
-        <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
-          <path
-            d="M0,40 C360,100 720,0 1080,50 C1260,75 1380,20 1440,40 L1440,100 L0,100 Z"
-            fill="var(--color-bg-deep)"
-          />
-        </svg>
+        {/* Right Side: Visual Image/Box */}
+        <div className="lg:col-span-5 order-1 lg:order-2">
+          <div
+            ref={imageRef}
+            className="relative aspect-[4/5] bg-zinc-950 border border-white/5 overflow-hidden group"
+          >
+            {/* Minimalist visual representation instead of a placeholder image */}
+            <div className="absolute inset-0 flex flex-col justify-between p-12">
+              <div className="flex justify-between items-start">
+                <div className="w-12 h-[1px] bg-white/20" />
+                <span className="text-[8px] font-mono text-white/20 uppercase tracking-[0.5em] rotate-90 origin-right translate-y-8">
+                  V.1.0 // IDENTITY
+                </span>
+              </div>
+              <div className="space-y-4">
+                <div className="text-8xl font-display font-bold text-white/5 select-none leading-none">
+                  DISORTION
+                </div>
+                <div className="w-full h-[1px] bg-gradient-to-r from-white/20 to-transparent" />
+              </div>
+            </div>
+
+            {/* Subtle glow effect */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-white/[0.02] blur-3xl rounded-full" />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-60" />
+          </div>
+        </div>
+
       </div>
     </section>
   );

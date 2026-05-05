@@ -1,112 +1,81 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+"use client";
+import React, { useRef, useEffect, useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { cn } from "../lib/utils";
 
 export default function CustomCursor() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-  const [isClicking, setIsClicking] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const cursorRef = useRef(null);
+  const followerRef = useRef(null);
+  const textRef = useRef(null);
+  const [hoverText, setHoverText] = useState("");
 
-  useEffect(() => {
-    // Check if mobile
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
+  useGSAP(() => {
+    const cursor = cursorRef.current;
+    const follower = followerRef.current;
 
-    const handleMouseMove = (e) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
+    const xTo = gsap.quickTo(cursor, "x", { duration: 0.2, ease: "power3" });
+    const yTo = gsap.quickTo(cursor, "y", { duration: 0.2, ease: "power3" });
+    
+    const xFollowerTo = gsap.quickTo(follower, "x", { duration: 0.5, ease: "power3" });
+    const yFollowerTo = gsap.quickTo(follower, "y", { duration: 0.5, ease: "power3" });
+
+    const moveCursor = (e) => {
+      xTo(e.clientX);
+      yTo(e.clientY);
+      xFollowerTo(e.clientX);
+      yFollowerTo(e.clientY);
     };
 
-    const handleMouseDown = () => setIsClicking(true);
-    const handleMouseUp = () => setIsClicking(false);
-
     const handleMouseOver = (e) => {
-      const target = e.target;
-      if (
-        target.tagName === 'A' ||
-        target.tagName === 'BUTTON' ||
-        target.closest('a') ||
-        target.closest('button') ||
-        target.classList.contains('hoverable')
-      ) {
-        setIsHovering(true);
+      const target = e.target.closest("[data-cursor]");
+      const interactive = e.target.closest("button, a");
+
+      if (target) {
+        setHoverText(target.getAttribute("data-cursor") || "");
+        gsap.to(cursor, { scale: 5, duration: 0.3 });
+        gsap.to(follower, { scale: 0, opacity: 0, duration: 0.3 });
+        gsap.to(textRef.current, { opacity: 1, scale: 1, duration: 0.3 });
+      } else if (interactive) {
+        gsap.to(cursor, { scale: 2.5, duration: 0.3 });
+        gsap.to(follower, { scale: 1.5, opacity: 0.2, duration: 0.3 });
       }
     };
 
-    const handleMouseOut = () => setIsHovering(false);
+    const handleMouseOut = () => {
+      setHoverText("");
+      gsap.to(cursor, { scale: 1, duration: 0.3 });
+      gsap.to(follower, { scale: 1, opacity: 1, duration: 0.3 });
+      gsap.to(textRef.current, { opacity: 0, scale: 0.5, duration: 0.3 });
+    };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('mouseover', handleMouseOver);
-    document.addEventListener('mouseout', handleMouseOut);
+    window.addEventListener("mousemove", moveCursor);
+    document.addEventListener("mouseover", handleMouseOver);
+    document.addEventListener("mouseout", handleMouseOut);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('mouseover', handleMouseOver);
-      document.removeEventListener('mouseout', handleMouseOut);
-      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener("mousemove", moveCursor);
+      document.removeEventListener("mouseover", handleMouseOver);
+      document.removeEventListener("mouseout", handleMouseOut);
     };
   }, []);
 
-  if (isMobile) return null;
-
   return (
     <>
-      {/* Main cursor ring */}
-      <motion.div
-        className="custom-cursor-ring"
-        animate={{
-          x: mousePos.x - (isHovering ? 24 : 16),
-          y: mousePos.y - (isHovering ? 24 : 16),
-          width: isHovering ? 48 : 32,
-          height: isHovering ? 48 : 32,
-          scale: isClicking ? 0.8 : 1,
-        }}
-        transition={{
-          type: 'spring',
-          stiffness: 2000,
-          damping: 70,
-          mass: 0.1,
-        }}
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          border: `2px solid ${isHovering ? '#d8ff7c' : '#d8ff7c88'}`,
-          borderRadius: '50%',
-          pointerEvents: 'none',
-          zIndex: 9999,
-          mixBlendMode: 'difference',
-        }}
-      />
-      {/* Inner dot */}
-      <motion.div
-        className="custom-cursor-dot"
-        animate={{
-          x: mousePos.x - 4,
-          y: mousePos.y - 4,
-          scale: isClicking ? 2 : 1,
-        }}
-        transition={{
-          type: 'spring',
-          stiffness: 5000,
-          damping: 80,
-          mass: 0.05,
-        }}
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: 8,
-          height: 8,
-          backgroundColor: '#d8ff7c',
-          borderRadius: '50%',
-          pointerEvents: 'none',
-          zIndex: 9999,
-        }}
+      <div 
+        ref={cursorRef}
+        className="fixed top-0 left-0 w-3 h-3 bg-white rounded-full pointer-events-none z-[10000] mix-blend-difference flex items-center justify-center origin-center"
+      >
+        <span 
+          ref={textRef}
+          className="opacity-0 scale-50 text-[2px] font-mono font-bold text-black uppercase tracking-tighter"
+        >
+          {hoverText}
+        </span>
+      </div>
+      <div 
+        ref={followerRef}
+        className="fixed top-0 left-0 w-8 h-8 border border-white/30 rounded-full pointer-events-none z-[9999] mix-blend-difference origin-center -translate-x-1/2 -translate-y-1/2"
       />
     </>
   );
