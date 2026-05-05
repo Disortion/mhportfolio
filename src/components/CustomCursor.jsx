@@ -1,8 +1,6 @@
-"use client";
 import React, { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { cn } from "../lib/utils";
 
 export default function CustomCursor() {
   const cursorRef = useRef(null);
